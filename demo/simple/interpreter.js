@@ -6,6 +6,7 @@ const nodes = {
 	variableDeclaration: 'VariableDeclaration',
 	expressionStatement: 'ExpressionStatement',
 	binaryExpression: 'BinaryExpression',
+	identifier: 'Identifier',
 	literal: 'Literal'
 };
 
@@ -23,6 +24,8 @@ function evaluate(node, environment) {
 			return evaluateVariableDeclaration(node.declarations, environment);
 		case nodes.binaryExpression:
 			return evaluateBinaryExpression(node.operator, node.left, node.right, environment);
+		case nodes.identifier:
+			return evaluateIdentifier(node.name, environment);
 		case nodes.literal:
 			return node.value;
 		default:
@@ -41,7 +44,7 @@ function evaluateStatements(nodes, environment) { // array of nodes
 }
 
 function evaluateVariableDeclaration(declarations, environment) {
-	for (let declaration in declarations) {
+	for (let declaration of declarations) {
 		environment[declaration.id.name] = evaluate(declaration.init, environment);
 	}
 
@@ -62,6 +65,18 @@ function evaluateBinaryExpression(operator, left, right, environment) {
 	}
 
 	return func(evaluate(left, environment), evaluate(right, environment));
+}
+
+function evaluateIdentifier(identifier, environment) {
+	while (environment) {
+		if (environment.hasOwnProperty(identifier)) {
+			return environment[identifier];
+		}
+
+		environment = environment.parent;
+	}
+
+	return undefined;
 }
 
 function apply(node) {
