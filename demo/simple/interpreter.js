@@ -1,10 +1,65 @@
 const errors = require('./errors');
 
-const global = {};
+class Environment {
+	constructor(parent) {
+		this.parent = parent;
+		this.entries = {};
+	}
+
+	define(identifier, value) {
+		this.entries[identifier] = value;
+		return value;
+	}
+
+	lookup(identifier) {
+		let environment = this;
+		while (environment) {
+			if (environment.entries.hasOwnProperty(identifier)) {
+				return environment.entries[identifier];
+			}
+
+			environment = environment.parent;
+		}
+
+		return undefined;
+	}
+}
+
+function FunctionValue(name, params, body, environment) {
+	// This is a thunk for normal JavaScript methods to invoke the interpreter.
+	let result = (new Function('apply', `
+		return function ${name}() {
+			return apply(arguments.callee, arguments);
+		};`))(apply);
+
+	result.parameters = params;
+	result.body = body;
+	result.environment = environment;
+	return result;
+}
+
+class ControlFlowValue {
+	constructor(value) {
+		this.value = value;
+	}
+}
+
+class ReturnValue extends ControlFlowValue {
+	constructor(value) {
+		super(value)
+	}
+}
+
+const global = new Environment();
 const nodes = {
 	program: 'Program',
+	blockStatement: 'BlockStatement',
 	variableDeclaration: 'VariableDeclaration',
+	functionDeclaration: 'FunctionDeclaration',
 	expressionStatement: 'ExpressionStatement',
+	returnStatement: 'ReturnStatement',
+	functionExpression: 'FunctionExpression',
+	callExpression: 'CallExpression',
 	binaryExpression: 'BinaryExpression',
 	logicalExpression: 'LogicalExpression',
 	identifier: 'Identifier',
@@ -18,11 +73,20 @@ function evaluate(node, environment) {
 
 	switch (node.type) {
 		case nodes.program:
+		case nodes.blockStatement:
 			return evaluateStatements(node.body, environment);
-		case nodes.expressionStatement:
-			return evaluate(node.expression, environment);
 		case nodes.variableDeclaration:
 			return evaluateVariableDeclaration(node.declarations, environment);
+		case nodes.functionDeclaration:
+			return evaluateFunctionDeclaration(node.id.name, node.params, node.body, environment);
+		case nodes.expressionStatement:
+			return evaluate(node.expression, environment);
+		case nodes.returnStatement:
+			return new ReturnValue(node.argument === null ? undefined : evaluate(node.argument, environment));
+		case nodes.functionExpression:
+			return evaluateFunctionExpression(node.id ? node.id.name : "", node.params, node.body, environment);
+		case nodes.callExpression:
+			return evaluateCallExpression(node.callee, node.arguments, environment);
 		case nodes.binaryExpression:
 			return evaluateBinaryExpression(node.operator, node.left, node.right, environment);
 		case nodes.logicalExpression:
@@ -41,6 +105,10 @@ function evaluateStatements(nodes, environment) { // array of nodes
 	let result;
 	for (let node of nodes) {
 		result = evaluate(node, environment);
+
+		if (result instanceof ControlFlowValue) {
+			return result;
+		}
 	}
 
 	return result;
@@ -48,10 +116,32 @@ function evaluateStatements(nodes, environment) { // array of nodes
 
 function evaluateVariableDeclaration(declarations, environment) {
 	for (let declaration of declarations) {
-		environment[declaration.id.name] = evaluate(declaration.init, environment);
+		environment.define(declaration.id.name, evaluate(declaration.init, environment));
 	}
 
 	return undefined;
+}
+
+function evaluateFunctionDeclaration(name, params, body, environment) {
+	let result = evaluateFunctionExpression(name, params, body, environment);
+	environment.define(name, result);
+
+	return result;
+}
+
+function evaluateFunctionExpression(name, params, body, environment) {
+	return new FunctionValue(name, params, body, environment);
+}
+
+function evaluateCallExpression(callee, parameters, environment) {
+	let f = evaluate(callee, environment);
+	let params = [];
+
+	for (let p of parameters) {
+		params.push(evaluate(p, environment));
+	}
+
+	return apply(f, params);
 }
 
 const binaryFunctions = {
@@ -92,18 +182,23 @@ function evaluateLogicalExpression(operator, left, right, environment) {
 }
 
 function evaluateIdentifier(identifier, environment) {
-	while (environment) {
-		if (environment.hasOwnProperty(identifier)) {
-			return environment[identifier];
-		}
+	return environment.lookup(identifier);
+}
 
-		environment = environment.parent;
+function apply(f, params) {
+	let newEnvironment = new Environment(f.environment);
+
+	for (let i = 0; i < f.parameters.length; ++i) {
+		let param = f.parameters[i];
+		newEnvironment.define(param.name, params[i]);
+	}
+
+	let result = evaluate(f.body, newEnvironment);
+	if (result instanceof ReturnValue) {
+		return result.value;
 	}
 
 	return undefined;
-}
-
-function apply(node) {
 }
 
 exports = module.exports = evaluate;
