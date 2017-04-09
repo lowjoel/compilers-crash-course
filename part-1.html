@@ -282,7 +282,7 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 					<section>
 						<h3>Optimisations</h3>
 						<p>Constant folding: finding values which can be resolved at compile-time</p>
-						<pre><code class="javascript">var answer = 6 * 7; // compiles to:
+						<pre><code class="javascript">var answer = 6 * 7; // parses as:
 {
   "type": "VariableDeclarator",
   "id": { "type": "Identifier", "name": "answer" },
@@ -297,7 +297,7 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 					<section>
 						<h3>Optimisations</h3>
 						<p>Common subexpression elimination: removing duplicated AST nodes</p>
-						<pre><code class="javascript">let y = x * x + x * x; // compiles to
+						<pre><code class="javascript">let y = x * x + x * x; // parses as
 {
   "type": "BinaryExpression", "operator": "+",
   "left": {
@@ -315,7 +315,49 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 					</section>
 				</section>
 
-				<section>Interpreters</section>
+				<section>
+					<h2>Interpreters</h2>
+
+					<section>
+						<h3>Principle</h3>
+						<p>If we already have the AST, we can run the entire program</p>
+						<p class="fragment">
+							Observation: If we traverse the tree using DFS, we should be able to "run" the program
+						</p>
+					</section>
+
+					<section>
+						<h3>Evaluate-and-Apply</h3>
+						<p>We can come up with evaluation rules</p>
+						<ul>
+							<li>Primitive literals evaluate to themselves: string, number, boolean</li>
+							<li>
+								Binary operators are the result of the left and right operands evaluated, followed
+								by the operation
+							</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Evaluate-and-Apply</h3>
+						<ul>
+							<li>
+								Function definitions capture its enclosing environment, and evaluate to a function
+								object
+							</li>
+							<li>
+								Applying a function is creating a new environment which points to the captured
+								environment as a parent, and associating the parameters with the provided values
+							</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>The Meta-Circular Evaluator</h3>
+						<p><a href="">Walkthrough</a></p>
+					</section>
+				</section>
+
 				<section>Transpilation</section>
 			</div>
 		</div>
