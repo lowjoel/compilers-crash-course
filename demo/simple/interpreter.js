@@ -6,6 +6,20 @@ class Environment {
 		this.entries = {};
 	}
 
+	static fromObject(parent, object) {
+		let result = new Environment(parent);
+
+		for (let key in object) {
+			if (!object.hasOwnProperty(key)) {
+				continue;
+			}
+
+			result.define(key, object[key]);
+		}
+
+		return result;
+	}
+
 	define(identifier, value) {
 		this.entries[identifier] = value;
 		return value;
@@ -186,6 +200,14 @@ function evaluateIdentifier(identifier, environment) {
 }
 
 function apply(f, params) {
+	if (f && f.hasOwnProperty('environment')) {
+		return applyInterpreterFunction(f, params);
+	}
+
+	return f.apply(null, params);
+}
+
+function applyInterpreterFunction(f, params) {
 	let newEnvironment = new Environment(f.environment);
 
 	for (let i = 0; i < f.parameters.length; ++i) {
@@ -201,4 +223,11 @@ function apply(f, params) {
 	return undefined;
 }
 
-exports = module.exports = evaluate;
+exports = module.exports = function entry(source, environment) {
+	let result = evaluate(source, Environment.fromObject(global, environment));
+	if (result instanceof ControlFlowValue) {
+		throw new errors.InterpreterError();
+	}
+
+	return result;
+};
