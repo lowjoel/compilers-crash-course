@@ -99,7 +99,7 @@ function evaluate(node, environment) {
 		case nodes.functionDeclaration:
 			return evaluateFunctionDeclaration(node.id.name, node.params, node.body, environment);
 		case nodes.functionExpression:
-			return evaluateFunctionExpression(node.id ? node.id.name : "", node.params, node.body, environment);
+			return evaluateFunctionExpression(node.id ? node.id.name : '', node.params, node.body, environment);
 		case nodes.callExpression:
 			return evaluateCallExpression(node.callee, node.arguments, environment);
 		case nodes.unaryExpression:
@@ -113,8 +113,7 @@ function evaluate(node, environment) {
 		case nodes.literal:
 			return node.value;
 		default:
-			console.error("Unknown node", node);
-			throw new errors.ParseError();
+			throw new errors.ParseError('Unknown node: ' + node.type);
 	}
 }
 
