@@ -72,6 +72,7 @@ const nodes = {
 	functionDeclaration: 'FunctionDeclaration',
 	functionExpression: 'FunctionExpression',
 	callExpression: 'CallExpression',
+	unaryExpression: 'UnaryExpression',
 	binaryExpression: 'BinaryExpression',
 	logicalExpression: 'LogicalExpression',
 	identifier: 'Identifier',
@@ -101,6 +102,8 @@ function evaluate(node, environment) {
 			return evaluateFunctionExpression(node.id ? node.id.name : "", node.params, node.body, environment);
 		case nodes.callExpression:
 			return evaluateCallExpression(node.callee, node.arguments, environment);
+		case nodes.unaryExpression:
+			return evaluateUnaryExpression(node.operator, node.argument);
 		case nodes.binaryExpression:
 			return evaluateBinaryExpression(node.operator, node.left, node.right, environment);
 		case nodes.logicalExpression:
@@ -174,6 +177,19 @@ function evaluateCallExpression(callee, parameters, environment) {
 	}
 
 	return apply(f, params);
+}
+
+const unaryFunctions = {
+	'!': a => !a
+};
+
+function evaluateUnaryExpression(operator, argument, environment) {
+	let func = unaryFunctions[operator];
+	if (!func) {
+		throw new errors.ParseError('Unknown operator: ' + operator);
+	}
+
+	return func(evaluate(argument, environment));
 }
 
 const binaryFunctions = {
