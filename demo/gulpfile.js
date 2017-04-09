@@ -7,8 +7,8 @@ function jisonGlob(path) {
         .pipe(gulp.dest(path));
 }
 
-gulp.task('default', ['calculator', 'simple']);
-gulp.task('test', ['simpleTest']);
+gulp.task('default', ['calculator', 'simple', 'arrow']);
+gulp.task('test', ['simpleTest', 'arrowTest']);
 
 gulp.task('calculator', ['calculatorParser', 'calculatorRun']);
 gulp.task('calculatorParser', function() {
@@ -25,7 +25,16 @@ gulp.task('simple', function() {
 });
 gulp.task('simpleTest', function() {
   const mocha = require('gulp-mocha');
-
   return gulp.src('simple/test/**/*_spec.js', {read: false})
+         .pipe(mocha());
+});
+
+gulp.task('arrow', function() {
+  const arrow = require('./arrow/run');
+  arrow();
+});
+gulp.task('arrowTest', function() {
+  const mocha = require('gulp-mocha');
+  return gulp.src('arrow/test/**/*_spec.js', {read: false})
          .pipe(mocha());
 });
