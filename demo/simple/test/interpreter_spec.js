@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const parse = require('../parser');
+const parse = require('../parser').parse;
 const interpreter = require('../interpreter');
 
 function interpret(program, environment) {

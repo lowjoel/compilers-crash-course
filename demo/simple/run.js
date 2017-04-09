@@ -30,13 +30,11 @@ exports = module.exports = function main() {
 };
 
 function interpret(program, environment) {
-	let tree = parse(program);
-	console.log('Parse tree:', tree);
-	console.log('\n\n');
+	let tree = parse.parse(program);
+	console.log('Parse tree:', parse.print(tree), '\n\n');
 
 	let result = evaluate(tree, environment);
-	console.log('Result:', result);
-	console.log('\n\n');
+	console.log('Result:', result, '\n\n');
 	return result;
 }
 
