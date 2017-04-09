@@ -1,7 +1,7 @@
-function InterpreterError() {
+class InterpreterError extends Error {
 }
 
-function ParseError() {
+class ParseError extends Error {
 }
 
 exports = module.exports = {

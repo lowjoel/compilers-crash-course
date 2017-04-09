@@ -59,9 +59,6 @@ class ControlFlowValue {
 }
 
 class ReturnValue extends ControlFlowValue {
-	constructor(value) {
-		super(value)
-	}
 }
 
 const global = new Environment();
@@ -71,6 +68,7 @@ const nodes = {
 	variableDeclaration: 'VariableDeclaration',
 	functionDeclaration: 'FunctionDeclaration',
 	expressionStatement: 'ExpressionStatement',
+	ifStatement: 'IfStatement',
 	returnStatement: 'ReturnStatement',
 	functionExpression: 'FunctionExpression',
 	callExpression: 'CallExpression',
@@ -95,8 +93,10 @@ function evaluate(node, environment) {
 			return evaluateFunctionDeclaration(node.id.name, node.params, node.body, environment);
 		case nodes.expressionStatement:
 			return evaluate(node.expression, environment);
+		case nodes.ifStatement:
+			return evaluateIfStatement(node.test, node.consequent, node.alternate, environment);
 		case nodes.returnStatement:
-			return new ReturnValue(node.argument === null ? undefined : evaluate(node.argument, environment));
+			return evaluateReturnStatement(node.argument, environment);
 		case nodes.functionExpression:
 			return evaluateFunctionExpression(node.id ? node.id.name : "", node.params, node.body, environment);
 		case nodes.callExpression:
@@ -126,6 +126,24 @@ function evaluateStatements(nodes, environment) { // array of nodes
 	}
 
 	return result;
+}
+
+function evaluateIfStatement(test, consequent, alternative, environment) {
+	if (evaluate(test, environment)) {
+		return evaluate(consequent, environment);
+	} else if (alternative !== null) {
+		return evaluate(alternative, environment);
+	}
+
+	return undefined;
+}
+
+function evaluateReturnStatement(argument, environment) {
+	if (argument === null) {
+		return new ReturnValue(undefined);
+	}
+
+	return new ReturnValue(evaluate(argument, environment));
 }
 
 function evaluateVariableDeclaration(declarations, environment) {
@@ -163,12 +181,15 @@ const binaryFunctions = {
 	'-': (a, b) => a - b,
 	'*': (a, b) => a * b,
 	'/': (a, b) => a / b,
+	'%': (a, b) => a % b,
+	'===': (a, b) => a === b,
+	'!==': (a, b) => a !== b
 };
 
 function evaluateBinaryExpression(operator, left, right, environment) {
 	let func = binaryFunctions[operator];
 	if (!func) {
-		throw new errors.ParseError();
+		throw new errors.ParseError('Unknown operator: ' + operator);
 	}
 
 	return func(evaluate(left, environment), evaluate(right, environment));
@@ -191,7 +212,7 @@ function evaluateLogicalExpression(operator, left, right, environment) {
 			return evaluate(right, environment);
 
 		default:
-			throw new errors.ParseError();
+			throw new errors.ParseError('Unknown operator: ' + operator);
 	}
 }
 
