@@ -1,15 +1,22 @@
 const esprima = require('esprima');
-require('lively.lang');
-const ast = require('lively.ast');
+const escodegen = require('escodegen');
+const estraverse = require('estraverse');
+const util = require('util');
 
 exports.parse = function parse(source) {
 	return esprima.parse(source);
 };
 
 exports.print = function print(node) {
-	return ast.printAst(node);
+	return util.inspect(node, false, null);
 };
 
 exports.stringify = function stringify(node) {
-	return ast.stringify(node);
+	return escodegen.generate(node);
+};
+
+exports.transform = function transform(node, transformer) {
+	return estraverse.replace(node, {
+		enter: transformer
+	});
 };

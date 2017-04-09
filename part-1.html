@@ -105,7 +105,7 @@
 						Parsing
 					</section>
 					<section>
-						Abstract Syntax Treee
+						Abstract Syntax Tree
 					</section>
 				</section>
 
@@ -245,7 +245,7 @@
 					<section>
 						<h3>Esprima</h3>
 						<p>Because we are using JavaScript, there is already a ES6 parser written for us!</p>
-						<p><a href="http://esprima.org/demo/parse.html">Demo</a></p>
+						<p><a href="https://astexplorer.net/">Demo</a></p>
 					</section>
 				</section>
 
@@ -259,7 +259,7 @@
 						<h3>Type Inference</h3>
 						<p>Type Inference is the process of deducing the type of values in a given program</p>
 						<p>Types can be deduced from constants, and propagated towards the end of the function</p>
-						<p>An algorithmic example for type inference is Hindley-Milner's Algorithm W</p>
+						<p>An algorithmic example for type inference is the Hindley-Milner Algorithm W</p>
 
 						<aside class="notes">
 							<p>I know JavaScript doesn't care, but I wanted to illustrate a point.</p>
@@ -320,9 +320,10 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 
 					<section>
 						<h3>Principle</h3>
-						<p>If we already have the AST, we can run the entire program</p>
+						<p>If the AST represents the program, we can run the program</p>
 						<p class="fragment">
-							Observation: If we traverse the tree using DFS, we should be able to "run" the program
+							Observation: If we traverse the tree using DFS, it should give the same effect of running
+							the program
 						</p>
 					</section>
 
@@ -355,14 +356,14 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 							<li>Sequences of statements are evaluated sequentially</li>
 							<li>Expression statements evaluate to the expression result*</li>
 							<li>Variable declaration statements evaluate the initial values, then are added to the
-								environment*</li>
-							<li>Return statements return a special result which stops subsequent statements**</li>
+								environment**</li>
+							<li>Return statements return a special result which stops subsequent statements</li>
 							<li>Real return result is unwrapped at function call site</li>
 						</ul>
 
 						<aside class="notes">
 							<p>* Doesn't handle hoisting</p>
-							<p>** Not really true in JavaScript, but this makes the toplevel work as expected.</p>
+							<p>** Not really true in JavaScript, but this makes the toplevel work like the console.</p>
 						</aside>
 					</section>
 
@@ -386,7 +387,15 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 					</section>
 				</section>
 
-				<section>Transpilation</section>
+				<section>
+					<h2>Transpilation</h2>
+
+					<section>
+						<h3>Principle</h3>
+						<p>If the AST represents the program, we can change the program</p>
+						<p class="fragment">This process can involve changing the semantics of the program!</p>
+					</section>
+				</section>
 			</div>
 		</div>
 
