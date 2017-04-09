@@ -4,7 +4,7 @@ const evaluate = require('./interpreter');
 exports = module.exports = function main() {
 	let program = `
 		var a = 52 - 2 * 3;
-		a * 3`;
+		false || a * 3`;
 	interpret(program);
 };
 

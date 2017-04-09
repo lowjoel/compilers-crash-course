@@ -6,6 +6,7 @@ const nodes = {
 	variableDeclaration: 'VariableDeclaration',
 	expressionStatement: 'ExpressionStatement',
 	binaryExpression: 'BinaryExpression',
+	logicalExpression: 'LogicalExpression',
 	identifier: 'Identifier',
 	literal: 'Literal'
 };
@@ -24,6 +25,8 @@ function evaluate(node, environment) {
 			return evaluateVariableDeclaration(node.declarations, environment);
 		case nodes.binaryExpression:
 			return evaluateBinaryExpression(node.operator, node.left, node.right, environment);
+		case nodes.logicalExpression:
+			return evaluateLogicalExpression(node.operator, node.left, node.right, environment);
 		case nodes.identifier:
 			return evaluateIdentifier(node.name, environment);
 		case nodes.literal:
@@ -65,6 +68,27 @@ function evaluateBinaryExpression(operator, left, right, environment) {
 	}
 
 	return func(evaluate(left, environment), evaluate(right, environment));
+}
+
+function evaluateLogicalExpression(operator, left, right, environment) {
+	let lhs = evaluate(left, environment);
+
+	switch (operator) {
+		case '||':
+			if (lhs) {
+				return lhs;
+			}
+			return evaluate(right, environment);
+
+		case '&&':
+			if (!lhs) {
+				return lhs;
+			}
+			return evaluate(right, environment);
+
+		default:
+			throw new errors.ParseError();
+	}
 }
 
 function evaluateIdentifier(identifier, environment) {
