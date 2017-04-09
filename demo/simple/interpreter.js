@@ -65,11 +65,11 @@ const global = new Environment();
 const nodes = {
 	program: 'Program',
 	blockStatement: 'BlockStatement',
-	variableDeclaration: 'VariableDeclaration',
-	functionDeclaration: 'FunctionDeclaration',
-	expressionStatement: 'ExpressionStatement',
 	ifStatement: 'IfStatement',
 	returnStatement: 'ReturnStatement',
+	expressionStatement: 'ExpressionStatement',
+	variableDeclaration: 'VariableDeclaration',
+	functionDeclaration: 'FunctionDeclaration',
 	functionExpression: 'FunctionExpression',
 	callExpression: 'CallExpression',
 	binaryExpression: 'BinaryExpression',
@@ -87,16 +87,16 @@ function evaluate(node, environment) {
 		case nodes.program:
 		case nodes.blockStatement:
 			return evaluateStatements(node.body, environment);
-		case nodes.variableDeclaration:
-			return evaluateVariableDeclaration(node.declarations, environment);
-		case nodes.functionDeclaration:
-			return evaluateFunctionDeclaration(node.id.name, node.params, node.body, environment);
-		case nodes.expressionStatement:
-			return evaluate(node.expression, environment);
 		case nodes.ifStatement:
 			return evaluateIfStatement(node.test, node.consequent, node.alternate, environment);
 		case nodes.returnStatement:
 			return evaluateReturnStatement(node.argument, environment);
+		case nodes.expressionStatement:
+			return evaluate(node.expression, environment);
+		case nodes.variableDeclaration:
+			return evaluateVariableDeclaration(node.declarations, environment);
+		case nodes.functionDeclaration:
+			return evaluateFunctionDeclaration(node.id.name, node.params, node.body, environment);
 		case nodes.functionExpression:
 			return evaluateFunctionExpression(node.id ? node.id.name : "", node.params, node.body, environment);
 		case nodes.callExpression:
