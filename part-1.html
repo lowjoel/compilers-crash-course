@@ -330,12 +330,40 @@ console.log(y + z);  // operator+: String -> Number -> String</code></pre>
 						<h3>Evaluate-and-Apply</h3>
 						<p>We can come up with evaluation rules</p>
 						<ul>
-							<li>Primitive literals evaluate to themselves: string, number, boolean</li>
+							<li>Primitive literals evaluate to themselves</li>
+							<li>Identifiers evaluate to the value stored in the environment</li>
+							<li>Recursively look up the enclosing environments if not found in current one</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Evaluate-and-Apply</h3>
+						<ul>
 							<li>
 								Binary operators are the result of the left and right operands evaluated, followed
 								by the operation
 							</li>
+							<li>
+								Unary operators are the result of the operand evaluated, followed by the operation
+							</li>
 						</ul>
+					</section>
+
+					<section>
+						<h3>Evaluate-and-Apply</h3>
+						<ul>
+							<li>Sequences of statements are evaluated sequentially</li>
+							<li>Expression statements evaluate to the expression result*</li>
+							<li>Variable declaration statements evaluate the initial values, then are added to the
+								environment*</li>
+							<li>Return statements return a special result which stops subsequent statements**</li>
+							<li>Real return result is unwrapped at function call site</li>
+						</ul>
+
+						<aside class="notes">
+							<p>* Doesn't handle hoisting</p>
+							<p>** Not really true in JavaScript, but this makes the toplevel work as expected.</p>
+						</aside>
 					</section>
 
 					<section>
